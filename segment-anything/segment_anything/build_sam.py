@@ -8,12 +8,18 @@ import torch
 
 from functools import partial
 
-from .modeling import ImageEncoderViT, MaskDecoder, PromptEncoder, Sam, TwoWayTransformer
+from .modeling import (
+    ImageEncoderViT,
+    MaskDecoder,
+    PromptEncoder,
+    Sam,
+    TwoWayTransformer,
+)
 
 
 def build_sam_vit_h(checkpoint=None):
-    return _build_sam(
-        encoder_embed_dim=1280,
+    return _build_sam(  # 喜欢这种return，比class写法方便简洁
+        encoder_embed_dim=1280,  # python支持写法特性之一
         encoder_depth=32,
         encoder_num_heads=16,
         encoder_global_attn_indexes=[7, 15, 23, 31],
@@ -44,8 +50,8 @@ def build_sam_vit_b(checkpoint=None):
     )
 
 
-sam_model_registry = {
-    "default": build_sam_vit_h,
+sam_model_registry = {  # 这种写法是为了方便通过字符串选择模型
+    "default": build_sam_vit_h,  # 好喜欢这种写法呀~收藏学习！
     "vit_h": build_sam_vit_h,
     "vit_l": build_sam_vit_l,
     "vit_b": build_sam_vit_b,
