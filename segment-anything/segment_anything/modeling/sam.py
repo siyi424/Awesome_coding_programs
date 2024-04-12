@@ -15,7 +15,10 @@ from .mask_decoder import MaskDecoder
 from .prompt_encoder import PromptEncoder
 
 
-class Sam(nn.Module):
+class Sam(nn.Module):  # nn.Module基类: 
+                       # Base class for all neural network modules.
+                       # Your models should also subclass this class.
+    # 类属性，所有实例共享
     mask_threshold: float = 0.0
     image_format: str = "RGB"
 
@@ -39,19 +42,22 @@ class Sam(nn.Module):
           pixel_mean (list(float)): Mean values for normalizing pixels in the input image.
           pixel_std (list(float)): Std values for normalizing pixels in the input image.
         """
-        super().__init__()
-        self.image_encoder = image_encoder
+        super().__init__() # 调用父类的init方法，确保子类初始化的时候，也执行了父类的初始化操作。
+                           # 如果父类定义了某个self.x, 子类虽然没有自己定义，但也可以直接使用self.x
+        self.image_encoder = image_encoder 
         self.prompt_encoder = prompt_encoder
         self.mask_decoder = mask_decoder
-        self.register_buffer("pixel_mean", torch.Tensor(pixel_mean).view(-1, 1, 1), False)
+        self.register_buffer( # 将一个ternsor注册为缓冲区buffer，一边在模型保存和加载的时候，不会被更新，常存储均值、标准差等固定参数
+            "pixel_mean", torch.Tensor(pixel_mean).view(-1, 1, 1), False # buffer name：pixel_mean, buffer value：tensor(pixel_mean), buffer不会被更新
+        )
         self.register_buffer("pixel_std", torch.Tensor(pixel_std).view(-1, 1, 1), False)
 
-    @property
+    @property   # 装饰器：将一个方法变成属性调用，用法：1. 计算属性值 2. 属性验证 3. 属性访问控制 4. 简化接口
     def device(self) -> Any:
-        return self.pixel_mean.device
+        return self.pixel_mean.device # 返回tensor: pixel_mean的设备：'cpu' or 'cuda'
 
-    @torch.no_grad()
-    def forward(
+    @torch.no_grad()  # pytorch的上下文管理器（context manager）：在这个上下文中，所有的计算都不会被跟踪，也不会在计算图中记录         
+    def forward(      # 这对于推理阶段或者仅需要进行前向传播而不需要梯度的情况非常有用
         self,
         batched_input: List[Dict[str, Any]],
         multimask_output: bool,
@@ -94,7 +100,9 @@ class Sam(nn.Module):
                 shape BxCxHxW, where H=W=256. Can be passed as mask input
                 to subsequent iterations of prediction.
         """
-        input_images = torch.stack([self.preprocess(x["image"]) for x in batched_input], dim=0)
+        input_images = torch.stack(
+            [self.preprocess(x["image"]) for x in batched_input], dim=0
+        )
         image_embeddings = self.image_encoder(input_images)
 
         outputs = []
@@ -158,7 +166,9 @@ class Sam(nn.Module):
             align_corners=False,
         )
         masks = masks[..., : input_size[0], : input_size[1]]
-        masks = F.interpolate(masks, original_size, mode="bilinear", align_corners=False)
+        masks = F.interpolate(
+            masks, original_size, mode="bilinear", align_corners=False
+        )
         return masks
 
     def preprocess(self, x: torch.Tensor) -> torch.Tensor:

@@ -59,11 +59,11 @@ sam_model_registry = {  # 这种写法是为了方便通过字符串选择模型
 
 
 def _build_sam(
-    encoder_embed_dim,
-    encoder_depth,
-    encoder_num_heads,
-    encoder_global_attn_indexes,
-    checkpoint=None,
+    encoder_embed_dim, # 1280
+    encoder_depth, # 32
+    encoder_num_heads, # 16
+    encoder_global_attn_indexes, # [7, 15, 23, 31]
+    checkpoint=None, # checkpoint
 ):
     prompt_embed_dim = 256
     image_size = 1024
@@ -105,7 +105,7 @@ def _build_sam(
         pixel_mean=[123.675, 116.28, 103.53],
         pixel_std=[58.395, 57.12, 57.375],
     )
-    sam.eval()
+    sam.eval()  # 将模型设置为评估模式（关闭训练时的功能，如 Dropout）
     if checkpoint is not None:
         with open(checkpoint, "rb") as f:
             state_dict = torch.load(f)

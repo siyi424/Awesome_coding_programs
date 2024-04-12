@@ -19,10 +19,11 @@ segment_anything
     |-modeling
         |-__init__.py
         |-common.py
-        |-image_encoder.py
-        |-mask_decoder.py
-        |-prompt_encoder.py
-        |-sam.py
+        |-image_encoder.py  
+        |-mask_decoder.py 
+        
+        |-prompt_encoder.py 
+        |-sam.py    # Sam(nn.module)
         |-transformer.py
     |-utils
         |-__init__.py
@@ -31,7 +32,7 @@ segment_anything
         |-transforms.py
     |-__init__.py
     |-automatic_mask_generator.py
-    |-build_sam.py
+    |-build_sam.py  # parameter Interface
     |-predictor.py 
 
 ```
